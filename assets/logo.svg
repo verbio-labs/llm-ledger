@@ -1,0 +1,43 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Verbio Labs flat owl icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2B2168"/>
+      <stop offset="1" stop-color="#171036"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="512" height="512" rx="116" fill="url(#bg)"/>
+
+  <!-- ear tufts -->
+  <path d="M196 168 L168 104 Q166 98 174 100 L240 150 Z" fill="#7C5CFC"/>
+  <path d="M316 168 L344 104 Q346 98 338 100 L272 150 Z" fill="#7C5CFC"/>
+
+  <!-- body -->
+  <rect x="150" y="150" width="212" height="250" rx="74" fill="#7C5CFC"/>
+
+  <!-- belly panel (flat depth) -->
+  <path d="M256 300 Q316 300 316 352 Q316 400 256 400 Q196 400 196 352 Q196 300 256 300 Z" fill="#9079FF"/>
+
+  <!-- facial disc -->
+  <rect x="172" y="176" width="168" height="156" rx="72" fill="#EFEAFF"/>
+
+  <!-- eyes -->
+  <circle cx="214" cy="252" r="40" fill="#FFFFFF"/>
+  <circle cx="298" cy="252" r="40" fill="#FFFFFF"/>
+  <circle cx="214" cy="252" r="40" fill="none" stroke="#DCD2FF" stroke-width="3"/>
+  <circle cx="298" cy="252" r="40" fill="none" stroke="#DCD2FF" stroke-width="3"/>
+  <circle cx="217" cy="256" r="19" fill="#211A47"/>
+  <circle cx="295" cy="256" r="19" fill="#211A47"/>
+  <circle cx="225" cy="249" r="6" fill="#FFFFFF"/>
+  <circle cx="303" cy="249" r="6" fill="#FFFFFF"/>
+
+  <!-- verified check glint near right eye -->
+  <path d="M289 256 l5 6 l10 -12" fill="none" stroke="#3DDC97" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- beak -->
+  <path d="M256 270 L243 284 Q256 296 269 284 Z" fill="#FFB23E"/>
+
+  <!-- feet -->
+  <path d="M232 398 v10 m0 0 l-9 6 m9 -6 l9 6" stroke="#FFB23E" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M280 398 v10 m0 0 l-9 6 m9 -6 l9 6" stroke="#FFB23E" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
