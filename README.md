@@ -20,6 +20,17 @@
   <img alt="No dependencies" src="https://img.shields.io/badge/dependencies-none-3DDC97.svg">
 </p>
 
+<p align="center">
+  <img src="assets/demo.gif" alt="LLM Ledger demo — validation and as-of time travel" width="660">
+</p>
+
+> **Try it in 30 seconds** (no LLM needed — runs on the shipped Pluto example):
+> ```bash
+> git clone https://github.com/verbio-labs/llm-ledger && cd llm-ledger
+> python3 tools/ledger.py check                          # validate the ledger
+> python3 tools/ledger.py search "pluto" --as-of 2005-01-01   # time-travel
+> ```
+
 ---
 
 A permanent markdown knowledge base that an LLM synthesizes and maintains for you —
