@@ -233,31 +233,120 @@ def validate(repo_root: str):
 
 
 # --------------------------------------------------------------------------- #
-# Search (simple, zero-dep retrieval primitive for the MCP server)
+# Search — pure-Python BM25 (no dependencies, scales to thousands of claims)
 # --------------------------------------------------------------------------- #
+import math
+
+_K1 = 1.5
+_B = 0.75
+
+
+_CJK = re.compile(r"[　-鿿가-힯]")
+
+
+def _tokenize(text: str):
+    # Word tokens (Unicode-aware). For CJK tokens we also emit character
+    # bigrams so Korean particles (명왕성은/명왕성이) still match "명왕성".
+    out = []
+    for t in (t for t in re.split(r"\W+", str(text).lower()) if t):
+        out.append(t)
+        if _CJK.search(t) and len(t) >= 2:
+            out.extend(t[i:i + 2] for i in range(len(t) - 1))
+    return out
+
+
+def _claim_doc(c: dict):
+    # weight the statement most; include topic and type for recall
+    return _tokenize(c.get("statement", "")) * 2 + _tokenize(c.get("topic", "")) \
+        + _tokenize(c.get("type", ""))
+
+
+def build_bm25(claims):
+    """Precompute a BM25 index over the claim corpus."""
+    docs = [_claim_doc(c) for c in claims]
+    dl = [len(d) for d in docs]
+    avgdl = (sum(dl) / len(dl)) if dl else 0.0
+    df: dict = {}
+    for d in docs:
+        for term in set(d):
+            df[term] = df.get(term, 0) + 1
+    n = len(docs)
+    idf = {t: math.log(1 + (n - f + 0.5) / (f + 0.5)) for t, f in df.items()}
+    tf = []
+    for d in docs:
+        counts: dict = {}
+        for term in d:
+            counts[term] = counts.get(term, 0) + 1
+        tf.append(counts)
+    return {"tf": tf, "idf": idf, "dl": dl, "avgdl": avgdl}
+
+
+def _bm25_score(qterms, i, index):
+    tf, idf, dl, avgdl = index["tf"][i], index["idf"], index["dl"][i], index["avgdl"]
+    s = 0.0
+    for t in qterms:
+        f = tf.get(t, 0)
+        if not f:
+            continue
+        denom = f + _K1 * (1 - _B + _B * (dl / avgdl if avgdl else 0))
+        s += idf.get(t, 0.0) * (f * (_K1 + 1)) / denom
+    return s
+
+
 def search(claims, query: str, as_of: str | None = None, limit: int = 8):
-    """Keyword-overlap ranking with active/high boosts and optional as-of filter."""
-    terms = [t for t in re.split(r"\W+", query.lower()) if len(t) > 1]
+    """BM25 ranking with optional as-of time filter and status/confidence boosts."""
+    index = build_bm25(claims)
+    qterms = _tokenize(query)
     scored = []
-    for c in claims:
+    for i, c in enumerate(claims):
         if as_of and _is_date(as_of):
             vf, vu = c.get("valid_from"), c.get("valid_until")
             if _is_date(vf) and as_of < vf:
                 continue
             if _is_date(vu) and as_of >= vu:
                 continue
-        hay = " ".join(
-            str(c.get(k, "")) for k in ("statement", "topic", "type")
-        ).lower()
-        score = sum(hay.count(t) for t in terms)
-        if score == 0:
+        score = _bm25_score(qterms, i, index)
+        if score <= 0:
             continue
         if c.get("status") == "active":
-            score += 2
+            score *= 1.3
         if c.get("confidence") == "high":
-            score += 1
+            score *= 1.15
         if c.get("status") == "contested":
-            score += 1  # surface disputes
+            score *= 1.1  # surface disputes
         scored.append((score, c))
     scored.sort(key=lambda x: x[0], reverse=True)
     return [c for _, c in scored[:limit]]
+
+
+# --------------------------------------------------------------------------- #
+# Writes — update fields of an existing claim in place (used by MCP supersede/contest)
+# --------------------------------------------------------------------------- #
+def update_claim_fields(repo_root: str, claim_id: str, updates: dict) -> bool:
+    """Rewrite top-level keys of one claim's YAML block. Returns True if updated."""
+    pattern = os.path.join(repo_root, "30-ledger", "claims", "*.md")
+    for path in glob.glob(pattern):
+        with open(path, encoding="utf-8") as fh:
+            text = fh.read()
+        if f"id: {claim_id}" not in text:
+            continue
+        blocks = re.split(r"(```yaml\s*\n.*?```)", text, flags=re.DOTALL)
+        changed = False
+        for bi, blk in enumerate(blocks):
+            if blk.startswith("```yaml") and f"id: {claim_id}" in blk:
+                lines = blk.splitlines()
+                for key, val in updates.items():
+                    rep = f"{key}: {val}"
+                    for li, line in enumerate(lines):
+                        if re.match(rf"^{re.escape(key)}:\s", line):
+                            lines[li] = rep
+                            break
+                    else:
+                        lines.insert(len(lines) - 1, rep)  # before closing fence
+                blocks[bi] = "\n".join(lines)
+                changed = True
+        if changed:
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write("".join(blocks))
+            return True
+    return False
