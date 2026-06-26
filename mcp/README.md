@@ -8,12 +8,14 @@ it trustworthy primitives.
 
 | Tool | What it does |
 | --- | --- |
-| `ledger_search(query, as_of?)` | Find claims; `as_of=YYYY-MM-DD` time-travels to that date |
+| `ledger_search(query, as_of?)` | BM25 search; `as_of=YYYY-MM-DD` time-travels to that date |
 | `ledger_get_topic(topic)` | Return the assembled topic view with footnotes |
 | `ledger_timeline(topic, as_of?)` | How knowledge changed over time / as-of snapshot |
 | `ledger_list_topics()` | All topics + claim counts |
 | `ledger_ingest(title, content, source_url?)` | Stash a raw source into `10-inbox` |
 | `ledger_add_claim(...)` | Append a **validated** claim (rejects bad writes) |
+| `ledger_supersede(old_id, new_statement, source_ref, changed_on, ...)` | Retire a fact and add its replacement (never overwrites; old stays for as-of) |
+| `ledger_contest(id_a, id_b, note?)` | Mark two claims as conflicting (both preserved) |
 | `ledger_audit()` | Full integrity check |
 
 Reads carry source + confidence; writes are validated before they land. The
