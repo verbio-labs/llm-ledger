@@ -14,6 +14,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/verbio-labs/llm-ledger/actions/workflows/validate.yml"><img alt="Validate ledger" src="https://github.com/verbio-labs/llm-ledger/actions/workflows/validate.yml/badge.svg"></a>
   <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-7C5CFC.svg">
   <img alt="Built for Claude Code" src="https://img.shields.io/badge/built%20for-Claude%20Code-211A47.svg">
   <img alt="No dependencies" src="https://img.shields.io/badge/dependencies-none-3DDC97.svg">
@@ -136,8 +137,25 @@ assertion. If a view is ever damaged, it can be regenerated from the claims at a
 
 ---
 
+## Validation (trust, not vibes)
+
+The ledger's correctness shouldn't depend on the LLM behaving. A tiny zero-dependency
+validator enforces it:
+
+```bash
+python3 tools/ledger.py check     # exit 1 if anything is wrong
+python3 tools/ledger.py search "your question" --as-of 2022-12-31
+python3 tools/ledger.py stats
+```
+
+`check` verifies every claim has provenance, valid enums, a real source file, sane
+temporal bounds (`valid_from <= valid_until`), and reciprocal supersession links —
+plus footnote and index integrity across topic views. It runs on every push via
+GitHub Actions, so a broken ledger fails CI instead of silently rotting.
+
 ## Learn more
 - **Operating contract**: [`CLAUDE.md`](CLAUDE.md)
+- **Validator & CLI**: [`tools/ledger.py`](tools/ledger.py)
 - **Full spec** (claim schema, confidence, conflict handling, routing, sharding, provenance): [`00-system/conventions.md`](00-system/conventions.md)
 - **Templates**: [`40-templates/`](40-templates/)
 

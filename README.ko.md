@@ -13,6 +13,12 @@
   <a href="README.md">English</a> · <strong>한국어</strong>
 </p>
 
+<p align="center">
+  <a href="https://github.com/verbio-labs/llm-ledger/actions/workflows/validate.yml"><img alt="Validate ledger" src="https://github.com/verbio-labs/llm-ledger/actions/workflows/validate.yml/badge.svg"></a>
+  <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-7C5CFC.svg">
+  <img alt="dependencies" src="https://img.shields.io/badge/dependencies-none-3DDC97.svg">
+</p>
+
 ---
 
 > 검증 가능하고 시간을 추적하는 **지식 원장(ledger)**.
@@ -129,8 +135,23 @@ superseded_by: clm-2026-0003
 
 ---
 
+## 검증 (믿음이 아니라 검사)
+
+원장의 정확성이 "LLM이 규칙대로 잘 했겠지"에 기대면 안 됩니다. 의존성 0짜리 검증기가 강제합니다:
+
+```bash
+python3 tools/ledger.py check     # 문제 있으면 exit 1
+python3 tools/ledger.py search "질문" --as-of 2022-12-31
+python3 tools/ledger.py stats
+```
+
+`check`는 모든 주장의 출처 존재·열거값·실제 소스 파일·시간 정합(`valid_from <= valid_until`)·
+승계 링크의 상호 일치, 그리고 토픽 뷰의 각주·인덱스 무결성까지 검사합니다.
+GitHub Actions로 매 push마다 돌아서, 깨진 원장은 조용히 썩는 대신 **CI에서 빨갛게 떨어집니다.**
+
 ## 더 보기
 - **운영 계약**: [`CLAUDE.md`](CLAUDE.md)
+- **검증기 & CLI**: [`tools/ledger.py`](tools/ledger.py)
 - **전체 규약** (주장 스키마·신뢰도·모순처리·라우팅·샤딩·provenance): [`00-system/conventions.md`](00-system/conventions.md)
 - **템플릿**: [`40-templates/`](40-templates/)
 
