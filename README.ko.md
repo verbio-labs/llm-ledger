@@ -19,6 +19,17 @@
   <img alt="dependencies" src="https://img.shields.io/badge/dependencies-none-3DDC97.svg">
 </p>
 
+<p align="center">
+  <img src="assets/demo.gif" alt="LLM Ledger 데모 — 검증과 as-of 시간여행" width="660">
+</p>
+
+> **30초 체험** (LLM 없이, 동봉된 명왕성 예제로 바로 실행):
+> ```bash
+> git clone https://github.com/verbio-labs/llm-ledger && cd llm-ledger
+> python3 tools/ledger.py check                          # 원장 검증
+> python3 tools/ledger.py search "pluto" --as-of 2005-01-01   # 시간여행
+> ```
+
 ---
 
 > 검증 가능하고 시간을 추적하는 **지식 원장(ledger)**.
@@ -59,6 +70,19 @@ raw 자료를 LLM이 직접 합성·유지하는 **영구 마크다운 지식베
 실제 동봉 예제: [`30-ledger/claims/pluto.md`](30-ledger/claims/pluto.md) · [`50-queries/2026-06-19-pluto-as-of-2005.md`](50-queries/2026-06-19-pluto-as-of-2005.md)
 
 ---
+
+## 타임라인 시각화
+
+사실을 덮어쓰지 않기 때문에 원장 전체를 시간선으로 그릴 수 있습니다.
+빛바랜 막대가 승계된(과거) 사실 — as-of 질의를 위해 그대로 보존됩니다.
+
+<p align="center">
+  <img src="assets/timeline.svg" alt="LLM Ledger 타임라인" width="820">
+</p>
+
+```bash
+python3 tools/timeline_svg.py     # assets/timeline.svg 재생성
+```
 
 ## 시작하기
 
@@ -149,9 +173,29 @@ python3 tools/ledger.py stats
 승계 링크의 상호 일치, 그리고 토픽 뷰의 각주·인덱스 무결성까지 검사합니다.
 GitHub Actions로 매 push마다 돌아서, 깨진 원장은 조용히 썩는 대신 **CI에서 빨갛게 떨어집니다.**
 
+## 다른 AI 도구에서 쓰기 (MCP)
+
+Claude Code뿐 아니라 **어떤 MCP 클라이언트**(Claude Desktop, Cursor 등)에서도
+같은 검증된 기억을 쓸 수 있습니다.
+
+```bash
+pip install -r mcp/requirements.txt
+```
+
+클라이언트 설정에 등록하면 다음 툴이 뜹니다 (자세히: [`mcp/README.md`](mcp/README.md)):
+
+| 툴 | 역할 |
+| --- | --- |
+| `ledger_search(query, as_of?)` | BM25 검색, `as_of`로 과거 시점 회수 |
+| `ledger_timeline(topic, as_of?)` | 시간축 추적 / as-of 스냅샷 |
+| `ledger_add_claim(...)` | 검증된 주장 추가 (불량 쓰기 거부) |
+| `ledger_supersede(old_id, new_statement, source_ref, changed_on)` | 사실 변경 기록 — 옛 주장 보존 |
+| `ledger_contest(id_a, id_b)` | 충돌하는 두 주장 표시 (둘 다 보존) |
+| `ledger_audit()` | 전체 무결성 검사 |
+
 ## 더 보기
 - **운영 계약**: [`CLAUDE.md`](CLAUDE.md)
-- **검증기 & CLI**: [`tools/ledger.py`](tools/ledger.py)
+- **검증기 & CLI**: [`tools/ledger.py`](tools/ledger.py) · **타임라인 생성기**: [`tools/timeline_svg.py`](tools/timeline_svg.py)
 - **전체 규약** (주장 스키마·신뢰도·모순처리·라우팅·샤딩·provenance): [`00-system/conventions.md`](00-system/conventions.md)
 - **템플릿**: [`40-templates/`](40-templates/)
 

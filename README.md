@@ -73,6 +73,19 @@ See it in the repo: [`30-ledger/claims/pluto.md`](30-ledger/claims/pluto.md) · 
 
 ---
 
+## See it on a timeline
+
+Because facts are never overwritten, the ledger can be drawn as a timeline —
+faded bars are superseded facts, still kept so as-of queries work.
+
+<p align="center">
+  <img src="assets/timeline.svg" alt="LLM Ledger timeline" width="820">
+</p>
+
+```bash
+python3 tools/timeline_svg.py     # regenerates assets/timeline.svg
+```
+
 ## Quick start
 
 ```bash
@@ -164,9 +177,17 @@ temporal bounds (`valid_from <= valid_until`), and reciprocal supersession links
 plus footnote and index integrity across topic views. It runs on every push via
 GitHub Actions, so a broken ledger fails CI instead of silently rotting.
 
+## Use it from any AI tool (MCP)
+
+Not just Claude Code — expose the ledger over the Model Context Protocol so any
+MCP client (Claude Desktop, Cursor, …) shares the same verifiable memory:
+`ledger_search` (with as-of), `ledger_timeline`, validated `ledger_add_claim`,
+`ledger_supersede`, `ledger_contest`, `ledger_audit`. Setup: [`mcp/README.md`](mcp/README.md).
+
 ## Learn more
 - **Operating contract**: [`CLAUDE.md`](CLAUDE.md)
-- **Validator & CLI**: [`tools/ledger.py`](tools/ledger.py)
+- **Validator & CLI**: [`tools/ledger.py`](tools/ledger.py) · **Timeline generator**: [`tools/timeline_svg.py`](tools/timeline_svg.py)
+- **MCP server**: [`mcp/`](mcp/)
 - **Full spec** (claim schema, confidence, conflict handling, routing, sharding, provenance): [`00-system/conventions.md`](00-system/conventions.md)
 - **Templates**: [`40-templates/`](40-templates/)
 
